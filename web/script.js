@@ -20,7 +20,109 @@ function addMessage(content, isUser) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// Function to send a message
+// Global variable to track current streaming message
+let currentStreamingMessage = null;
+
+// Function to add a streaming message placeholder
+function addStreamingMessage() {
+    const chatContainer = document.getElementById('chat-container');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message assistant-message';
+    messageDiv.id = 'streaming-message';
+
+    const label = document.createElement('div');
+    label.className = 'message-label';
+    label.textContent = 'Zero';
+
+    const messageContent = document.createElement('div');
+    messageContent.className = 'message-content';
+    messageContent.textContent = '';
+
+    // Add typing indicator
+    const typingIndicator = document.createElement('span');
+    typingIndicator.className = 'typing-indicator';
+    typingIndicator.textContent = '▋';
+    messageContent.appendChild(typingIndicator);
+
+    messageDiv.appendChild(label);
+    messageDiv.appendChild(messageContent);
+    chatContainer.appendChild(messageDiv);
+
+    // Scroll to bottom
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    currentStreamingMessage = messageContent;
+    return messageDiv;
+}
+
+// Function called by Python to update streaming message
+eel.expose(update_streaming_message);
+function update_streaming_message(token) {
+    if (currentStreamingMessage) {
+        // Remove typing indicator if it exists
+        const typingIndicator = currentStreamingMessage.querySelector('.typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+        
+        // Add the new token
+        currentStreamingMessage.textContent += token;
+        
+        // Add typing indicator back
+        const newTypingIndicator = document.createElement('span');
+        newTypingIndicator.className = 'typing-indicator';
+        newTypingIndicator.textContent = '▋';
+        currentStreamingMessage.appendChild(newTypingIndicator);
+        
+        // Scroll to bottom
+        document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
+    }
+}
+
+// Function called when streaming is complete
+eel.expose(streaming_complete);
+function streaming_complete() {
+    if (currentStreamingMessage) {
+        // Remove typing indicator
+        const typingIndicator = currentStreamingMessage.querySelector('.typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+        
+        // Remove streaming ID
+        const streamingDiv = document.getElementById('streaming-message');
+        if (streamingDiv) {
+            streamingDiv.removeAttribute('id');
+        }
+        
+        currentStreamingMessage = null;
+    }
+    
+    // Re-enable input
+    const input = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    input.disabled = false;
+    sendBtn.disabled = false;
+    input.focus();
+}
+
+// Function called when streaming encounters an error
+eel.expose(streaming_error);
+function streaming_error(errorMsg) {
+    if (currentStreamingMessage) {
+        currentStreamingMessage.textContent = errorMsg;
+        currentStreamingMessage = null;
+    }
+    
+    // Re-enable input
+    const input = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    input.disabled = false;
+    sendBtn.disabled = false;
+    input.focus();
+}
+
+// Function to send a message with streaming
 async function sendMessage() {
     const input = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
@@ -38,35 +140,15 @@ async function sendMessage() {
     // Clear input
     input.value = '';
 
-    // Show loading indicator
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'loading';
-    loadingDiv.textContent = 'Zero is typing...';
-    loadingDiv.id = 'loading-indicator';
-    document.getElementById('chat-container').appendChild(loadingDiv);
+    // Add streaming message placeholder
+    addStreamingMessage();
 
     try {
-        // Send message to Python backend
-        const response = await eel.send_message(message)();
-
-        // Remove loading indicator
-        const loading = document.getElementById('loading-indicator');
-        if (loading) loading.remove();
-
-        // Add assistant response to chat
-        addMessage(response, false);
+        // Send message to Python backend (streaming)
+        await eel.send_message_stream(message)();
     } catch (error) {
-        // Remove loading indicator
-        const loading = document.getElementById('loading-indicator');
-        if (loading) loading.remove();
-
-        addMessage(`Error: ${error}`, false);
+        streaming_error(`Error: ${error}`);
     }
-
-    // Re-enable input
-    input.disabled = false;
-    sendBtn.disabled = false;
-    input.focus();
 }
 
 // Function to clear the chat
@@ -99,10 +181,10 @@ async function changeModel() {
         
         // Update UI to show which model is active
         const modelName = selectedModel === 'claude' ? 'Claude 3.5 Sonnet' : 'GPT-4o';
-        console.log(`Switched to ${modelName}`);
+        console.log(`Now powered by ${modelName}.`);
         
         // Optionally add a visual indicator
-        addMessage(`Switched to ${modelName}`, false);
+        addMessage(`Now powered by ${modelName}.`, false);
         
     } catch (error) {
         console.error('Error switching model:', error);

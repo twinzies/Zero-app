@@ -1,4 +1,5 @@
 import os
+import time
 
 import eel
 from anthropic import Anthropic
@@ -18,6 +19,7 @@ eel.init('web')
 # Store conversation history and selected model
 conversation_history = []
 selected_model = "claude"  # Default to Claude
+streaming_delay = 0.05  # Default delay between tokens (in seconds)
 
 @eel.expose
 def set_model(model_name):
@@ -30,6 +32,8 @@ def set_model(model_name):
         return True
     print(f"DEBUG: Invalid model name: {model_name}")  # Debug line
     return False
+
+
 
 @eel.expose
 def send_message(user_message):
@@ -82,6 +86,81 @@ def send_message(user_message):
 
     except Exception as e:
         return f"Error: {str(e)}"
+
+@eel.expose
+def send_message_stream(user_message):
+    """Send a message and stream the response token by token"""
+    try:
+        print(f"DEBUG: Streaming with model: {selected_model}")
+        
+        # Add user message to history
+        conversation_history.append({
+            "role": "user", 
+            "content": user_message
+        })
+
+        full_response = ""
+        
+        if selected_model == "claude":
+            print("DEBUG: Using Claude streaming API")
+            
+            # Stream response from Claude
+            with anthropic_client.messages.stream(
+                model="claude-3-5-sonnet-20241022",
+                max_tokens=4096,
+                system="You are Zero, a helpful and intelligent AI assistant. Always introduce yourself as Zero when greeting users or when asked about your identity. Your makers are T&W.",
+                messages=conversation_history
+            ) as stream:
+                for text in stream.text_stream:
+                    full_response += text
+                    # Send each token to frontend
+                    eel.update_streaming_message(text)()
+                    # Add delay to control streaming speed
+                    time.sleep(streaming_delay)
+        
+        elif selected_model == "gpt4o":
+            print("DEBUG: Using OpenAI streaming API")
+            
+            # Prepare messages with system prompt for GPT-4o  
+            messages_with_system = [
+                {"role": "system", "content": "You are Zero, a helpful and creative AI assistant. Always introduce yourself as Zero when greeting users or when asked about your identity. Your makers are T&W."}
+            ] + conversation_history
+            
+            # Stream response from GPT-4o
+            stream = openai_client.chat.completions.create(
+                model="gpt-4o",
+                max_tokens=4096,
+                messages=messages_with_system,
+                stream=True
+            )
+            
+            for chunk in stream:
+                if chunk.choices[0].delta.content is not None:
+                    token = chunk.choices[0].delta.content
+                    full_response += token
+                    # Send each token to frontend
+                    eel.update_streaming_message(token)()
+                    # Add delay to control streaming speed
+                    time.sleep(streaming_delay)
+        
+        else:
+            return "Error: Invalid model selected"
+
+        # Add complete response to history
+        conversation_history.append({
+            "role": "assistant",
+            "content": full_response
+        })
+        
+        # Signal streaming is complete
+        eel.streaming_complete()()
+        
+        return full_response
+
+    except Exception as e:
+        error_msg = f"Error: {str(e)}"
+        eel.streaming_error(error_msg)()
+        return error_msg
 
 @eel.expose
 def clear_conversation():
