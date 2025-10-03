@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claude Chat</title>
+    <title>Zero Chat</title>
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="/eel.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Claude Chat</h1>
-            <button id="clear-btn" onclick="clearChat()">Clear Chat</button>
+            <h1>Zero - Assistants that align with you.</h1>
+            <div class="controls">
+                <select id="model-selector" onchange="changeModel()">
+                    <option value="claude">Claude 3.5 Sonnet</option>
+                    <option value="gpt4o">GPT-4o</option>
+                </select>
+                <button id="clear-btn" onclick="clearChat()">Clear Chat</button>
+            </div>
         </div>
 
         <div id="chat-container" class="chat-container">

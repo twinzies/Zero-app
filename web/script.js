@@ -6,7 +6,7 @@ function addMessage(content, isUser) {
 
     const label = document.createElement('div');
     label.className = 'message-label';
-    label.textContent = isUser ? 'You' : 'Claude';
+    label.textContent = isUser ? 'You' : 'Zero';
 
     const messageContent = document.createElement('div');
     messageContent.className = 'message-content';
@@ -41,7 +41,7 @@ async function sendMessage() {
     // Show loading indicator
     const loadingDiv = document.createElement('div');
     loadingDiv.className = 'loading';
-    loadingDiv.textContent = 'Claude is typing...';
+    loadingDiv.textContent = 'Zero is typing...';
     loadingDiv.id = 'loading-indicator';
     document.getElementById('chat-container').appendChild(loadingDiv);
 
@@ -86,6 +86,27 @@ function handleKeyPress(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         sendMessage();
+    }
+}
+
+// Function to change the AI model
+async function changeModel() {
+    const selector = document.getElementById('model-selector');
+    const selectedModel = selector.value;
+    
+    try {
+        await eel.set_model(selectedModel)();
+        
+        // Update UI to show which model is active
+        const modelName = selectedModel === 'claude' ? 'Claude 3.5 Sonnet' : 'GPT-4o';
+        console.log(`Switched to ${modelName}`);
+        
+        // Optionally add a visual indicator
+        addMessage(`Switched to ${modelName}`, false);
+        
+    } catch (error) {
+        console.error('Error switching model:', error);
+        addMessage('Error switching model', false);
     }
 }
 
