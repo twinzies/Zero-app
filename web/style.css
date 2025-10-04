@@ -206,3 +206,199 @@ body {
     font-style: italic;
     padding: 10px;
 }
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #1a1a1a;
+    border: 2px solid #e0f6ff;
+    border-radius: 10px;
+    padding: 30px;
+    max-width: 500px;
+    text-align: center;
+}
+
+.modal-content h2 {
+    color: #e0f6ff;
+    margin-bottom: 15px;
+}
+
+.modal-content p {
+    color: #c0c0c0;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.modal-btn-yes, .modal-btn-no {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.modal-btn-yes {
+    background-color: #709fdd;
+    color: #000000;
+}
+
+.modal-btn-yes:hover {
+    background-color: #e0f6ff;
+}
+
+.modal-btn-no {
+    background-color: #2a2a2a;
+    color: #e0f6ff;
+    border: 1px solid #e0f6ff;
+}
+
+.modal-btn-no:hover {
+    background-color: #3a3a3a;
+}
+
+/* Second Assistant Popup (Black/Orange Theme) */
+.second-assistant-popup {
+    background-color: #000000;
+}
+
+.second-assistant-popup .header-second {
+    background-color: #1a1a1a;
+    border: 2px solid #ff6600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-radius: 10px 10px 0 0;
+}
+
+.second-assistant-popup .header-second h1 {
+    color: #ff6600;
+    font-size: 24px;
+}
+
+.second-assistant-popup .controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.second-assistant-popup .chat-container {
+    border-left: 2px solid #ff6600;
+    border-right: 2px solid #ff6600;
+}
+
+.second-assistant-popup .assistant-message {
+    background-color: #2a2a2a;
+    border: 1px solid #ff6600;
+}
+
+.second-assistant-popup .user-message {
+    background-color: #1a1a1a;
+    border: 1px solid #ff8833;
+}
+
+.second-assistant-popup .input-area {
+    display: flex;
+    gap: 10px;
+    padding: 20px;
+    background-color: #1a1a1a;
+    border-radius: 0 0 10px 10px;
+    border: 2px solid #ff6600;
+}
+
+.second-assistant-popup #user-input-second {
+    flex: 1;
+    padding: 15px;
+    background-color: #0a0a0a;
+    color: #c0c0c0;
+    border: 1px solid #ff6600;
+    border-radius: 5px;
+    resize: none;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.second-assistant-popup #user-input-second:focus {
+    outline: none;
+    border-color: #ff8833;
+}
+
+.second-assistant-popup #send-btn-second {
+    background-color: #ff6600;
+    color: #000000;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.second-assistant-popup #send-btn-second:hover {
+    background-color: #ff8833;
+}
+
+.second-assistant-popup #send-btn-second:disabled {
+    background-color: #cc5200;
+    cursor: not-allowed;
+}
+
+.second-assistant-popup #model-selector-second {
+    background-color: #2a2a2a;
+    color: #ff6600;
+    border: 1px solid #ff6600;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.second-assistant-popup #model-selector-second:focus {
+    outline: none;
+    border-color: #ff8833;
+}
+
+.second-assistant-popup #clear-btn-second {
+    background-color: #ff6600;
+    color: #000000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.second-assistant-popup #clear-btn-second:hover {
+    background-color: #ff8833;
+}
+
+/* Scrollbar for second assistant */
+.second-assistant-popup .chat-container::-webkit-scrollbar-thumb {
+    background: #ff6600;
+}
+
+.second-assistant-popup .chat-container::-webkit-scrollbar-thumb:hover {
+    background: #ff8833;
+}

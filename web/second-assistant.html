@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero - Technical Concepts</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+    <div class="container second-assistant-popup">
+        <div class="header header-second">
+            <h1>Zero - Technical Concepts</h1>
+            <div class="controls">
+                <select id="model-selector-second" onchange="changeModelSecond()">
+                    <option value="gpt4o">GPT-4o</option>
+                    <option value="claude">Claude 3.5 Sonnet</option>
+                </select>
+                <button id="clear-btn-second" onclick="clearChatSecond()">Clear Chat</button>
+            </div>
+        </div>
+
+        <div id="chat-container-second" class="chat-container">
+            <!-- Messages will appear here -->
+        </div>
+
+        <div class="input-area">
+            <textarea
+                id="user-input-second"
+                placeholder="Ask about technical concepts..."
+                rows="3"
+                onkeydown="handleKeyPressSecond(event)"
+            ></textarea>
+            <button id="send-btn-second" onclick="sendMessageSecond()">Send</button>
+        </div>
+    </div>
+
+    <script src="script-second.js"></script>
+</body>
+</html>

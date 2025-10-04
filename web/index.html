@@ -8,6 +8,19 @@
     <script type="text/javascript" src="/eel.js"></script>
 </head>
 <body>
+    <!-- Dual Assistant Prompt Modal -->
+    <div id="dual-assistant-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Multiple Topics Detected</h2>
+            <p>It looks like you're asking about both mental health and technical/educational concepts.</p>
+            <p>Would you like to open a second assistant specialized in technical concepts?</p>
+            <div class="modal-buttons">
+                <button class="modal-btn-yes" onclick="acceptDualAssistant()">Yes, open both</button>
+                <button class="modal-btn-no" onclick="declineDualAssistant()">No, just one</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>Zero - Assistants that align with you.</h1>

@@ -22,6 +22,9 @@ function addMessage(content, isUser) {
 
 // Global variable to track current streaming message
 let currentStreamingMessage = null;
+let secondAssistantActive = false;
+let pendingUserMessage = null;
+let secondAssistantWindow = null;
 
 // Function to add a streaming message placeholder
 function addStreamingMessage() {
@@ -140,6 +143,25 @@ async function sendMessage() {
     // Clear input
     input.value = '';
 
+    // Check for dual topics if second assistant is not active yet
+    if (!secondAssistantActive) {
+        try {
+            const isDualTopic = await eel.detect_dual_topics(message)();
+            if (isDualTopic) {
+                // Store the message and show modal
+                pendingUserMessage = message;
+                document.getElementById('dual-assistant-modal').style.display = 'flex';
+
+                // Re-enable input
+                input.disabled = false;
+                sendBtn.disabled = false;
+                return;
+            }
+        } catch (error) {
+            console.error('Error detecting dual topics:', error);
+        }
+    }
+
     // Add streaming message placeholder
     addStreamingMessage();
 
@@ -148,6 +170,86 @@ async function sendMessage() {
         await eel.send_message_stream(message)();
     } catch (error) {
         streaming_error(`Error: ${error}`);
+    }
+}
+
+// Function to accept dual assistant
+async function acceptDualAssistant() {
+    // Hide modal
+    document.getElementById('dual-assistant-modal').style.display = 'none';
+
+    // Open second assistant in a new popup window
+    secondAssistantWindow = window.open(
+        'second-assistant.html',
+        'ZeroTechnicalAssistant',
+        'width=800,height=600,resizable=yes,scrollbars=yes'
+    );
+
+    secondAssistantActive = true;
+
+    try {
+        await eel.activate_second_assistant()();
+    } catch (error) {
+        console.error('Error activating second assistant:', error);
+    }
+
+    // Continue with the pending message
+    if (pendingUserMessage) {
+        const input = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        input.disabled = true;
+        sendBtn.disabled = true;
+
+        addStreamingMessage();
+
+        try {
+            await eel.send_message_stream(pendingUserMessage)();
+        } catch (error) {
+            streaming_error(`Error: ${error}`);
+        }
+
+        pendingUserMessage = null;
+    }
+}
+
+// Function to decline dual assistant
+async function declineDualAssistant() {
+    // Hide modal
+    document.getElementById('dual-assistant-modal').style.display = 'none';
+
+    // Continue with the pending message
+    if (pendingUserMessage) {
+        const input = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        input.disabled = true;
+        sendBtn.disabled = true;
+
+        addStreamingMessage();
+
+        try {
+            await eel.send_message_stream(pendingUserMessage)();
+        } catch (error) {
+            streaming_error(`Error: ${error}`);
+        }
+
+        pendingUserMessage = null;
+    }
+}
+
+// Function to close second assistant
+async function closeSecondAssistant() {
+    if (secondAssistantWindow && !secondAssistantWindow.closed) {
+        secondAssistantWindow.close();
+    }
+    secondAssistantWindow = null;
+    secondAssistantActive = false;
+
+    try {
+        await eel.deactivate_second_assistant()();
+    } catch (error) {
+        console.error('Error deactivating second assistant:', error);
     }
 }
 
