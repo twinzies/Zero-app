@@ -164,7 +164,14 @@ async function changeModelSecond() {
         await eel.set_model_second_assistant(selectedModel)();
 
         // Update UI to show which model is active
-        const modelName = selectedModel === 'claude' ? 'Claude 3.5 Sonnet' : 'GPT-4o';
+        let modelName;
+        if (selectedModel === 'Gold') {
+            modelName = 'Claude 3.5 Sonnet';
+        } else if (selectedModel === 'Silver') {
+            modelName = 'GPT-4o';
+        } else if (selectedModel === 'Standard') {
+            modelName = 'LLaMA 3.1 70B';
+        }
         console.log(`Second assistant now powered by ${modelName}.`);
 
         // Optionally add a visual indicator
