@@ -5,6 +5,7 @@ import eel
 from anthropic import Anthropic
 from dotenv import load_dotenv
 from openai import OpenAI
+from together import Together
 
 # Load environment variables
 load_dotenv()
@@ -12,6 +13,8 @@ load_dotenv()
 # Initialize AI clients
 anthropic_client = Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
 openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+llama_client = Together(api_key=os.getenv('TOGETHER_API_KEY'))
+
 
 # Initialize Eel with the web folder
 eel.init('web')
@@ -42,11 +45,19 @@ second_assistant_model = "gpt4o"  # Default to GPT-4o for second assistant
 
 @eel.expose
 def set_model(model_name):
-    """Set the AI model to use (claude or gpt4o)"""
+    """Set the AI model to use (Gold/claude, Silver/gpt4o, Standard/llama)"""
     global selected_model
     print(f"DEBUG: Switching from {selected_model} to {model_name}")  # Debug line
-    if model_name in ["claude", "gpt4o"]:
-        selected_model = model_name
+
+    # Map display names to internal model names
+    model_mapping = {
+        "Gold": "claude",
+        "Silver": "gpt4o",
+        "Standard": "llama"
+    }
+
+    if model_name in model_mapping:
+        selected_model = model_mapping[model_name]
         print(f"DEBUG: Model successfully changed to {selected_model}")  # Debug line
         return True
     print(f"DEBUG: Invalid model name: {model_name}")  # Debug line
@@ -83,7 +94,20 @@ def set_model_second_assistant(model_name):
     """Set the AI model for the second assistant"""
     global second_assistant_model
     print(f"DEBUG: Switching second assistant model to {model_name}")
-    if model_name in ["claude", "gpt4o"]:
+
+    # Map display names to internal model names
+    model_mapping = {
+        "Gold": "claude",
+        "Silver": "gpt4o",
+        "Standard": "llama"
+    }
+
+    # Accept both display names and internal names
+    if model_name in model_mapping:
+        second_assistant_model = model_mapping[model_name]
+        print(f"DEBUG: Second assistant model successfully changed to {second_assistant_model}")
+        return True
+    elif model_name in ["claude", "gpt4o", "llama"]:
         second_assistant_model = model_name
         print(f"DEBUG: Second assistant model successfully changed to {second_assistant_model}")
         return True
@@ -129,7 +153,17 @@ def send_message(user_message):
                 messages=messages_with_system
             )
             assistant_message = response.choices[0].message.content
-        
+        elif selected_model == "llama":
+            messages_with_system = [{"role": "system", "content": "You are Zero, a helpful and creative AI assistant. Always introduce yourself as Zero when greeting users or when asked about your identity. Your makers are T&W."}] + conversation_history
+            print("DEBUG: Using Together LLaMA API")  # Debug line
+            # Get response from LLaMA
+            response = llama_client.chat.completions.create(
+                model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+                max_tokens=4096,
+                messages=messages_with_system
+            )
+            assistant_message = response.choices[0].message.content
+
         else:
             return "Error: Invalid model selected"
 
@@ -177,12 +211,12 @@ def send_message_stream(user_message):
         
         elif selected_model == "gpt4o":
             print("DEBUG: Using OpenAI streaming API")
-            
-            # Prepare messages with system prompt for GPT-4o  
+
+            # Prepare messages with system prompt for GPT-4o
             messages_with_system = [
                 {"role": "system", "content": "You are Zero, a helpful and creative AI assistant. Always introduce yourself as Zero when greeting users or when asked about your identity. Your makers are T&W."}
             ] + conversation_history
-            
+
             # Stream response from GPT-4o
             stream = openai_client.chat.completions.create(
                 model="gpt-4o",
@@ -190,7 +224,7 @@ def send_message_stream(user_message):
                 messages=messages_with_system,
                 stream=True
             )
-            
+
             for chunk in stream:
                 if chunk.choices[0].delta.content is not None:
                     token = chunk.choices[0].delta.content
@@ -199,7 +233,32 @@ def send_message_stream(user_message):
                     eel.update_streaming_message(token)()
                     # Add delay to control streaming speed
                     time.sleep(streaming_delay)
-        
+
+        elif selected_model == "llama":
+            print("DEBUG: Using Together LLaMA streaming API")
+
+            # Prepare messages with system prompt for LLaMA
+            messages_with_system = [
+                {"role": "system", "content": "You are Zero, a helpful and creative AI assistant. Always introduce yourself as Zero when greeting users or when asked about your identity. Your makers are T&W."}
+            ] + conversation_history
+
+            # Stream response from LLaMA
+            stream = llama_client.chat.completions.create(
+                model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+                max_tokens=4096,
+                messages=messages_with_system,
+                stream=True
+            )
+
+            for chunk in stream:
+                if chunk.choices[0].delta.content is not None:
+                    token = chunk.choices[0].delta.content
+                    full_response += token
+                    # Send each token to frontend
+                    eel.update_streaming_message(token)()
+                    # Add delay to control streaming speed
+                    time.sleep(streaming_delay)
+
         else:
             return "Error: Invalid model selected"
 
