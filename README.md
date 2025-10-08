@@ -6,20 +6,32 @@ Zero - AI assistants that align with you is an agentic AI assistant platform. Ze
 WIP. See issues list.
 
 
-### Key Modules
-- **`app.py`**: Handles the main chat assistance flow, including API calls and tool routing.
-- **`modules/settings_panel.py`**: TODO.
-- **`modules/multi_assistants_tool.py`**: TODO.
-
+### Key Modules and Structure
+```
+project-repo/
+│
+├── app.py                      # Flask entry point: sets up routes & runs the app
+│
+├── agents/                     # Core backend logic (AI orchestration)
+│   ├── __init__.py             
+│   ├── orchestrator.py         # Orchestrator: manages agents, routing & memory
+│   └── agent.py                # BaseAgent & LLMAgent definitions
+│
+├── requirements.txt            # Python dependencies (Flask, LangChain, etc.)
+│
+├── .env                        # Environment variables (API keys, secrets)
+│
+└── README.md                   # Project documentation
+```
 
 ## Requirements
 - Python 3.10+
 - An Anthropic API key
 - An Open AI API key
+- A Together API key
 
 ### Python Dependencies
 ```
-eel==0.16.0
 anthropic==0.42.0
 python-dotenv==1.0.0
 openai==1.51.0
