@@ -8,7 +8,7 @@ WIP. See issues list.
 
 ### Key Modules and Structure
 ```
-project-repo/
+Zero-App/
 │
 ├── app.py                      # Flask entry point: sets up routes & runs the app
 │
@@ -17,11 +17,11 @@ project-repo/
 │   ├── orchestrator.py         # Orchestrator: manages agents, routing & memory
 │   └── agent.py                # BaseAgent & LLMAgent definitions
 │
-├── requirements.txt            # Python dependencies (Flask, LangChain, etc.)
+├── requirements.txt            
 │
-├── .env                        # Environment variables (API keys, secrets)
+├── .env                        # Put your API keys here.
 │
-└── README.md                   # Project documentation
+└── README.md                   
 ```
 
 ## Requirements
