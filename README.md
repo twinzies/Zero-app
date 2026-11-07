@@ -10,8 +10,8 @@ Zero - AI assistants that align with you is an agentic AI assistant platform. Ze
     <td><img src="images/desktop-conversation.png" alt="Zero desktop conversation" width="360"></td>
   </tr>
   <tr>
-    <td>The desktop app features a clean chat window with selectable assistant styles.</td>
-    <td>Conversations show messages from you and Zero, with the composer always at hand.</td>
+    <td>The desktop app features a clean chat window with selectable large language model tiers.</td>
+    <td>Conversations stream messages from Zero to you with minimal latency.</td>
   </tr>
 </table>
 
