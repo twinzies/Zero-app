@@ -2,6 +2,16 @@
 
 Zero - AI assistants that align with you is an agentic AI assistant platform. Zero lets you engage multiple LLM assistants that coordinate across tasks and models. Multiple assistants (chat agents) are specialized to the task and use different generative language models to respond to queries.
 
+## Desktop app
+
+<img src="images/desktop-chat.png" alt="Zero desktop chat window" width="800">
+
+The desktop app features a clean chat window with selectable assistant styles.
+
+<img src="images/desktop-conversation.png" alt="Zero desktop conversation" width="800">
+
+Conversations show messages from you and Zero, with the composer always at hand.
+
 ## Project status
 WIP. See issues list.
 
